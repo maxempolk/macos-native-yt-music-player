@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 /// Owns the playback queue and drives the audio engine. The UI talks only to
 /// this object; it never touches AVPlayer or InnerTube directly.
@@ -11,6 +12,9 @@ final class PlayerController: ObservableObject {
     @Published private(set) var currentTime: Double = 0
     @Published private(set) var duration: Double = 0
     @Published var errorMessage: String?
+    /// Dominant tint of the current track's artwork, for the ambient background.
+    @Published private(set) var artworkColor: Color?
+    private var colorTrackId: String?
 
     var currentTrack: Track? {
         guard let i = currentIndex, queue.indices.contains(i) else { return nil }
@@ -181,5 +185,23 @@ final class PlayerController: ObservableObject {
                           isPlaying: isPlaying,
                           elapsed: currentTime,
                           duration: duration)
+        refreshArtworkColor()
+    }
+
+    /// Recomputes the ambient tint only when the track actually changes.
+    private func refreshArtworkColor() {
+        let track = currentTrack
+        guard track?.id != colorTrackId else { return }
+        colorTrackId = track?.id
+
+        guard let url = track?.thumbnailURL else {
+            artworkColor = nil
+            return
+        }
+        Task {
+            let image = await ImageLoader.shared.image(for: url)
+            guard colorTrackId == track?.id else { return }   // track changed meanwhile
+            artworkColor = image.flatMap(ImageColor.dominant).map { Color(nsColor: $0) }
+        }
     }
 }

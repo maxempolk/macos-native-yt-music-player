@@ -15,9 +15,16 @@ struct NowPlayingBar: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
-        .glassEffect(in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .glassEffect(panelGlass, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
         .padding(.horizontal, 10)
         .padding(.bottom, 10)
+        .animation(.easeInOut(duration: 0.6), value: player.artworkColor)
+    }
+
+    /// Tints the panel's glass with the current track's artwork color — kept
+    /// gentle (reduced opacity) so it suggests the color rather than painting it.
+    private var panelGlass: Glass {
+        player.artworkColor.map { Glass.regular.tint($0.opacity(0.4)) } ?? .regular
     }
 
     // Track info on the left, transport controls always pinned to the right.

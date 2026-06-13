@@ -16,6 +16,8 @@ struct ContentView: View {
                 signedOutView
             }
         }
+        .background(VisualEffectBackground().ignoresSafeArea())
+        .background(WindowConfigurator())
         .sheet(isPresented: $showingLogin) {
             LoginSheet()
                 .environmentObject(session)
@@ -53,6 +55,7 @@ struct ContentView: View {
                     .help("Refresh liked songs")
                 }
             }
+            .toolbarBackground(.hidden, for: .windowToolbar)
             .onAppear(perform: installSpacebarToggle)
     }
 
