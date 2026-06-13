@@ -1,0 +1,38 @@
+# macOS
+.DS_Store
+*.swp
+*~
+
+# Xcode build output
+build/
+DerivedData/
+*.xcuserstate
+
+# Xcode user-specific & generated state
+xcuserdata/
+*.xcuserdatad/
+*.xccheckout
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# CocoaPods / Carthage (if ever added)
+Pods/
+Carthage/Build/
+
+# Generated project (project.yml is the source of truth via XcodeGen)
+# Comment the next line out if you prefer to commit the generated project.
+# Tune.xcodeproj/
+
+# Sensitive / local user data (the app stores auth in Keychain and caches in
+# ~/Library/Caches, so nothing should land here — but guard against it anyway)
+*.log
+secrets*
+*.cookies
+liked.json
