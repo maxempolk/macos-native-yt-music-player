@@ -5,6 +5,22 @@ struct LikedSongsView: View {
     @EnvironmentObject var library: LibraryModel
     @EnvironmentObject var player: PlayerController
 
+    // Custom pull-to-refresh state.
+    @State private var pull: CGFloat = 0
+    @State private var pullArmed = false
+    @State private var refreshing = false
+    private let pullThreshold: CGFloat = 80
+
+    private func startRefresh() {
+        guard !refreshing else { return }
+        refreshing = true
+        pullArmed = false
+        Task {
+            await library.loadLiked()
+            withAnimation(.easeOut(duration: 0.25)) { refreshing = false }
+        }
+    }
+
     private func copyLink(for track: Track) {
         let url = "https://music.youtube.com/watch?v=\(track.id)"
         NSPasteboard.general.clearContents()
@@ -64,6 +80,31 @@ struct LikedSongsView: View {
             }
             .listStyle(.inset)
             .scrollContentBackground(.hidden)
+            .scrollBounceBehavior(.always)
+            .onScrollGeometryChange(for: CGFloat.self) { geo in
+                // Overscroll past the top shows up as a negative offset.
+                max(0, -geo.contentOffset.y - geo.contentInsets.top)
+            } action: { _, amount in
+                pull = amount
+                if amount > pullThreshold { pullArmed = true }
+            }
+            .onScrollPhaseChange { _, phase in
+                // Fire on release (once the finger lifts and it settles).
+                if pullArmed, !refreshing, phase != .interacting, phase != .tracking {
+                    startRefresh()
+                }
+            }
+            .overlay(alignment: .top) { refreshIndicator }
+        }
+    }
+
+    @ViewBuilder
+    private var refreshIndicator: some View {
+        if pull > 2 || refreshing {
+            PullRefreshIndicator(progress: min(1, pull / pullThreshold), refreshing: refreshing)
+                .padding(.top, 8)
+                .offset(y: refreshing ? 4 : min(pull * 0.35, 26))
+                .allowsHitTesting(false)
         }
     }
 
@@ -90,6 +131,33 @@ struct LikedSongsView: View {
         }
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+/// A circular indicator that winds up as you pull, then spins while refreshing.
+private struct PullRefreshIndicator: View {
+    let progress: Double      // 0…1 based on pull distance
+    let refreshing: Bool
+    @State private var spin = false
+
+    var body: some View {
+        Circle()
+            .trim(from: 0, to: refreshing ? 0.75 : max(0.04, progress * 0.95))
+            .stroke(.secondary, style: StrokeStyle(lineWidth: 2.5, lineCap: .round))
+            .frame(width: 20, height: 20)
+            .rotationEffect(.degrees(refreshing ? (spin ? 360 : 0) : progress * 300))
+            .opacity(refreshing ? 1 : progress)
+            .padding(8)
+            .background(.thinMaterial, in: Circle())
+            .onChange(of: refreshing) { _, isOn in
+                if isOn {
+                    withAnimation(.linear(duration: 0.7).repeatForever(autoreverses: false)) {
+                        spin = true
+                    }
+                } else {
+                    spin = false
+                }
+            }
     }
 }
 

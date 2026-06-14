@@ -15,6 +15,8 @@ final class PlayerController: ObservableObject {
     /// Dominant tint of the current track's artwork, for the ambient background.
     @Published private(set) var artworkColor: Color?
     private var colorTrackId: String?
+    /// Whether the lyrics panel is shown instead of the track list.
+    @Published var showLyrics = false
 
     var currentTrack: Track? {
         guard let i = currentIndex, queue.indices.contains(i) else { return nil }

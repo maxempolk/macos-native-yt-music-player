@@ -31,9 +31,23 @@ struct NowPlayingBar: View {
     private var topRow: some View {
         HStack(spacing: 12) {
             trackInfo.frame(maxWidth: .infinity, alignment: .leading)
+            lyricsButton
             controls.fixedSize()
         }
         .frame(height: 42)
+    }
+
+    private var lyricsButton: some View {
+        Button {
+            player.showLyrics.toggle()
+        } label: {
+            Image(systemName: "quote.bubble")
+                .font(.body)
+                .foregroundStyle(player.showLyrics ? Color.accentColor : .secondary)
+        }
+        .buttonStyle(.plain)
+        .help("Lyrics")
+        .disabled(player.currentTrack == nil)
     }
 
     private var trackInfo: some View {

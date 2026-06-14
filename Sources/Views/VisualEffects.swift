@@ -31,6 +31,7 @@ struct WindowConfigurator: NSViewRepresentable {
             // it rendering as a black strip over the now-transparent window.
             window.titlebarAppearsTransparent = true
             window.styleMask.insert(.fullSizeContentView)
+            window.titleVisibility = .hidden       // no app-name text up top
         }
         return view
     }
