@@ -3,6 +3,7 @@ import SwiftUI
 struct LyricsView: View {
     @EnvironmentObject var player: PlayerController
     @EnvironmentObject var lyrics: LyricsModel
+    @State private var scrollObserver = ScrollObserver()
 
     var body: some View {
         Group {
@@ -49,6 +50,7 @@ struct LyricsView: View {
                 .padding(.bottom, 28)
             }
             .contentMargins(.top, 0, for: .scrollContent)
+            .customScrollbar(scrollObserver)
             .onChange(of: currentIndex) { _, idx in
                 guard let idx else { return }
                 withAnimation(.easeInOut(duration: 0.35)) {

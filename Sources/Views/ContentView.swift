@@ -21,6 +21,7 @@ struct ContentView: View {
         }
         .background(VisualEffectBackground().ignoresSafeArea())
         .background(WindowConfigurator())
+        .background(HideSystemScrollers())
         .overlay(alignment: .topLeading) {
             if session.isAuthenticated { trafficLightBacking }
         }

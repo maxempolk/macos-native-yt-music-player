@@ -18,6 +18,53 @@ struct VisualEffectBackground: NSViewRepresentable {
     }
 }
 
+/// Hides the system scrollers on every NSScrollView in the window. SwiftUI's
+/// `.scrollIndicators(.hidden)` doesn't remove the *legacy* always-visible
+/// scroller (shown when the user's system setting is "Always show scroll bars"),
+/// so we turn it off directly and rely on our custom scrollbar instead.
+struct HideSystemScrollers: NSViewRepresentable {
+    func makeCoordinator() -> Coordinator { Coordinator() }
+
+    func makeNSView(context: Context) -> NSView {
+        let view = NSView()
+        context.coordinator.start(anchoredTo: view)
+        return view
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {}
+
+    final class Coordinator {
+        private weak var anchor: NSView?
+        private var timer: Timer?
+
+        func start(anchoredTo view: NSView) {
+            anchor = view
+            // List/ScrollView re-enable their scroller on updates, so keep
+            // enforcing it off. Cheap: only touches scrollers that are on.
+            timer = Timer.scheduledTimer(withTimeInterval: 0.4, repeats: true) { [weak self] _ in
+                self?.enforce()
+            }
+            timer?.tolerance = 0.2
+        }
+
+        private func enforce() {
+            guard let root = anchor?.window?.contentView else { return }
+            for scroll in Self.scrollViews(in: root) {
+                if scroll.hasVerticalScroller { scroll.hasVerticalScroller = false }
+                if scroll.hasHorizontalScroller { scroll.hasHorizontalScroller = false }
+            }
+        }
+
+        private static func scrollViews(in view: NSView) -> [NSScrollView] {
+            var found = view.subviews.flatMap { scrollViews(in: $0) }
+            if let scroll = view as? NSScrollView { found.append(scroll) }
+            return found
+        }
+
+        deinit { timer?.invalidate() }
+    }
+}
+
 /// Makes the hosting window non-opaque with a clear background so the
 /// behind-window blur can actually show the desktop through it.
 struct WindowConfigurator: NSViewRepresentable {

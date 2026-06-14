@@ -9,6 +9,7 @@ struct LikedSongsView: View {
     @State private var pull: CGFloat = 0
     @State private var pullArmed = false
     @State private var refreshing = false
+    @State private var scrollObserver = ScrollObserver()
     private let pullThreshold: CGFloat = 80
 
     private func startRefresh() {
@@ -82,6 +83,7 @@ struct LikedSongsView: View {
             .scrollContentBackground(.hidden)
             .contentMargins(.top, 0, for: .scrollContent)
             .scrollBounceBehavior(.always)
+            .customScrollbar(scrollObserver)
             .onScrollGeometryChange(for: CGFloat.self) { geo in
                 // Overscroll past the top shows up as a negative offset.
                 max(0, -geo.contentOffset.y - geo.contentInsets.top)
