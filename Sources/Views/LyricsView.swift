@@ -46,8 +46,9 @@ struct LyricsView: View {
                     }
                 }
                 .padding(.horizontal, 24)
-                .padding(.vertical, 28)
+                .padding(.bottom, 28)
             }
+            .contentMargins(.top, 0, for: .scrollContent)
             .onChange(of: currentIndex) { _, idx in
                 guard let idx else { return }
                 withAnimation(.easeInOut(duration: 0.35)) {

@@ -8,7 +8,6 @@ struct ContentView: View {
     @EnvironmentObject var lyrics: LyricsModel
     @State private var showingLogin = false
     @State private var keyMonitor: Any?
-    @State private var savedWidth: CGFloat?      // window width to restore when lyrics close
     @State private var leftPinnedWidth: CGFloat? // fixed left-column width while lyrics are shown
     @State private var lyricsPaneVisible = false // pane shown only AFTER the window has grown
 
@@ -61,37 +60,62 @@ struct ContentView: View {
             // Keep the left column pinned to the leading edge instead of letting
             // the HStack center it while the window is wide but lyrics are gone.
             .frame(maxWidth: .infinity, alignment: .leading)
-            .safeAreaInset(edge: .top, spacing: 0) {
-                // Reserve a slim strip so the track list clears the traffic
-                // lights and their backing.
-                Color.clear.frame(height: 34)
+            .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { _, width in
+                // Auto-collapse lyrics once the window gets too narrow for a split.
+                if player.showLyrics, lyricsPaneVisible, width < lyricsMinTotalWidth {
+                    autoHideLyrics()
+                }
             }
-            .onAppear(perform: installSpacebarToggle)
+            .onAppear {
+                installSpacebarToggle()
+                restoreLyricsModeIfNeeded()
+            }
             .onChange(of: player.showLyrics) { _, show in
                 if show {
-                    openLyrics()
+                    if !lyricsPaneVisible { openLyrics() }   // skip when restoring
                     Task { await lyrics.load(for: player.currentTrack) }
-                } else {
+                } else if lyricsPaneVisible {
                     closeLyrics()
                 }
+                UserDefaults.standard.set(show, forKey: Self.lyricsOpenKey)
             }
             .onChange(of: player.currentTrack?.id) { _, _ in
                 if player.showLyrics { Task { await lyrics.load(for: player.currentTrack) } }
             }
     }
 
+    private static let lyricsOpenKey = "tune.lyricsOpen"
+    @State private var didRestore = false
+
     private func keyWindow() -> NSWindow? {
         NSApp.keyWindow ?? NSApp.windows.first(where: { $0.isVisible })
     }
 
-    /// Opens lyrics jitter-free by staging it across run-loop ticks:
-    /// 1) pin the left column's width, 2) grow the window (still WITHOUT the
-    /// lyrics pane, so the left can't be squeezed/stretched), 3) reveal the
-    /// lyrics pane into the now-empty right space with an animation.
+    /// Width below which lyrics auto-collapse back to a single pane.
+    private let lyricsMinTotalWidth: CGFloat = 540
+
+    /// Reopens in the same mode the app was last closed in. If lyrics were open,
+    /// the window was restored at ~2× by macOS, so we just re-show the pane —
+    /// the split is a live 50/50, no pinning needed.
+    private func restoreLyricsModeIfNeeded() {
+        guard !didRestore else { return }
+        didRestore = true
+        guard UserDefaults.standard.bool(forKey: Self.lyricsOpenKey) else { return }
+        DispatchQueue.main.async {
+            leftPinnedWidth = nil
+            lyricsPaneVisible = true
+            player.showLyrics = true   // onChange skips openLyrics (pane already visible)
+            Task { await lyrics.load(for: player.currentTrack) }
+        }
+    }
+
+    /// Opens lyrics jitter-free by staging it across run-loop ticks: pin the
+    /// left width, grow the window (WITHOUT the pane so the left can't be
+    /// squeezed), reveal the pane, then release the pin so the split becomes a
+    /// live 50/50 that tracks window resizing.
     private func openLyrics() {
         guard let win = keyWindow() else { return }
         let w = win.frame.width
-        savedWidth = w
         leftPinnedWidth = w
         DispatchQueue.main.async {
             guard let win = keyWindow() else { return }
@@ -103,24 +127,36 @@ struct ContentView: View {
             win.setFrame(frame, display: true, animate: false)
             DispatchQueue.main.async {
                 withAnimation(.easeOut(duration: 0.28)) { lyricsPaneVisible = true }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    leftPinnedWidth = nil   // release → live 50/50
+                }
             }
         }
     }
 
-    /// Reverse: animate the pane out, then shrink the window once it's gone,
-    /// keeping the left pinned until the very end.
+    /// Manual close: pin the left at its current half, animate the pane out,
+    /// then shrink the window to that half (single pane restored).
     private func closeLyrics() {
+        guard let win = keyWindow() else { return }
+        let target = win.frame.width / 2
+        leftPinnedWidth = target
         withAnimation(.easeIn(duration: 0.22)) { lyricsPaneVisible = false }
-        let target = savedWidth
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            if let win = keyWindow(), let target {
+            if let win = keyWindow() {
                 var frame = win.frame
                 frame.size.width = target
                 win.setFrame(frame, display: true, animate: false)
             }
             leftPinnedWidth = nil
-            savedWidth = nil
         }
+    }
+
+    /// Auto-collapse when the window gets too narrow: hide the pane in place,
+    /// letting the list fill the (already small) window — no resize.
+    private func autoHideLyrics() {
+        withAnimation(.easeIn(duration: 0.22)) { lyricsPaneVisible = false }
+        leftPinnedWidth = nil
+        player.showLyrics = false   // onChange skips closeLyrics (pane already hidden)
     }
 
     /// Space toggles play/pause regardless of which control is focused

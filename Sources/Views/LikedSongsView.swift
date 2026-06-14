@@ -80,6 +80,7 @@ struct LikedSongsView: View {
             }
             .listStyle(.inset)
             .scrollContentBackground(.hidden)
+            .contentMargins(.top, 0, for: .scrollContent)
             .scrollBounceBehavior(.always)
             .onScrollGeometryChange(for: CGFloat.self) { geo in
                 // Overscroll past the top shows up as a negative offset.
