@@ -7,6 +7,10 @@ final class LibraryModel: ObservableObject {
     @Published private(set) var isLoading = false
     @Published var error: String?
 
+    // "New releases" (discovery) section.
+    @Published private(set) var newReleases: [Track] = []
+    @Published private(set) var newReleasesLoaded = false
+
     private let client: InnerTubeClient
 
     /// videoIds the user unliked this session. YouTube's liked-songs endpoint
@@ -52,6 +56,18 @@ final class LibraryModel: ObservableObject {
             if likedTracks.isEmpty { self.error = error.localizedDescription }
         }
         isLoading = false
+    }
+
+    /// Loads "New releases" (lazily; once per launch unless refreshed).
+    func loadNewReleases(force: Bool = false) async {
+        if newReleasesLoaded && !force { return }
+        do {
+            newReleases = try await client.newReleases()
+            newReleasesLoaded = true
+        } catch {
+            // Non-fatal: the section just shows its empty state.
+            newReleasesLoaded = true
+        }
     }
 
     /// Removes a track from "Liked Music". Optimistic: drops it from the list

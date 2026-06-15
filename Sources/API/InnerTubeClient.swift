@@ -76,6 +76,38 @@ struct InnerTubeClient {
         return all
     }
 
+    /// Fetches the user's PERSONALIZED home feed (`FEmusic_home`) and returns the
+    /// directly-playable tracks from it (quick picks, new-releases-for-you, etc.).
+    func newReleases() async throws -> [Track] {
+        guard session.isAuthenticated else { throw InnerTubeError.notAuthenticated }
+        let json = try await post("browse", body: [
+            "context": webContext(),
+            "browseId": "FEmusic_home",
+        ])
+        return HomeParser.tracks(in: json)
+    }
+
+    /// Fetches "New releases" (catalog) — playable singles/videos.
+    func catalogNewReleases() async throws -> [Track] {
+        guard session.isAuthenticated else { throw InnerTubeError.notAuthenticated }
+        let json = try await post("browse", body: [
+            "context": webContext(),
+            "browseId": "FEmusic_new_releases",
+        ])
+        return NewReleasesParser.tracks(in: json)
+    }
+
+    /// Fetches the personalized home feed parsed into shelves (mirrors YT Music's
+    /// own rows: Quick Picks, New releases for you, Recommended, …).
+    func homeShelves() async throws -> [Shelf] {
+        guard session.isAuthenticated else { throw InnerTubeError.notAuthenticated }
+        let json = try await post("browse", body: [
+            "context": webContext(),
+            "browseId": "FEmusic_home",
+        ])
+        return HomeFeedParser.shelves(in: json)
+    }
+
     /// Removes a song from "Liked Music" (resets its rating to indifferent).
     func removeLike(videoId: String) async throws {
         guard session.isAuthenticated else { throw InnerTubeError.notAuthenticated }

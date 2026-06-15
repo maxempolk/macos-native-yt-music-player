@@ -84,6 +84,50 @@ struct HideSystemScrollers: NSViewRepresentable {
     }
 }
 
+/// Reports the window's width *only* when the user finishes a live resize
+/// (drag). Programmatic `setFrame(animate:false)` does NOT post
+/// `didEndLiveResizeNotification`, so this avoids the feedback loop that
+/// `onGeometryChange` has with our own window resizing.
+struct UserResizeObserver: NSViewRepresentable {
+    var onUserResize: (CGFloat) -> Void
+
+    func makeNSView(context: Context) -> NSView {
+        let view = NSView()
+        context.coordinator.onResize = onUserResize
+        DispatchQueue.main.async { context.coordinator.attach(to: view.window) }
+        return view
+    }
+
+    func updateNSView(_ view: NSView, context: Context) {
+        context.coordinator.onResize = onUserResize
+        if context.coordinator.window == nil {
+            DispatchQueue.main.async { context.coordinator.attach(to: view.window) }
+        }
+    }
+
+    func makeCoordinator() -> Coordinator { Coordinator() }
+
+    final class Coordinator {
+        weak var window: NSWindow?
+        var onResize: ((CGFloat) -> Void)?
+
+        func attach(to window: NSWindow?) {
+            guard let window, self.window == nil else { return }
+            self.window = window
+            NotificationCenter.default.addObserver(
+                self, selector: #selector(didEndLiveResize(_:)),
+                name: NSWindow.didEndLiveResizeNotification, object: window)
+        }
+
+        @objc private func didEndLiveResize(_ note: Notification) {
+            guard let window else { return }
+            onResize?(window.frame.width)
+        }
+
+        deinit { NotificationCenter.default.removeObserver(self) }
+    }
+}
+
 /// Makes the hosting window non-opaque with a clear background so the
 /// behind-window blur can actually show the desktop through it.
 struct WindowConfigurator: NSViewRepresentable {

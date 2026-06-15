@@ -17,6 +17,9 @@ final class PlayerController: ObservableObject {
     private var colorTrackId: String?
     /// Whether the lyrics panel is shown instead of the track list.
     @Published var showLyrics = false
+    /// True while the lyrics pane is mid open/close animation — the toggle is
+    /// blocked during this so rapid clicks can't desync the window resize.
+    @Published var lyricsTransitioning = false
 
     var currentTrack: Track? {
         guard let i = currentIndex, queue.indices.contains(i) else { return nil }
@@ -25,14 +28,19 @@ final class PlayerController: ObservableObject {
 
     private let engine: AudioEngine
     private let nowPlaying = NowPlayingCenter()
+    private let history: PlayHistoryStore
+    /// videoId already written to history for the current play (write once).
+    private var recordedHistoryId: String?
 
-    init(engine: AudioEngine) {
+    init(engine: AudioEngine, history: PlayHistoryStore) {
         self.engine = engine
+        self.history = history
         self.engine.onProgress = { [weak self] cur, dur in
             guard let self else { return }
             self.currentTime = cur
             if dur > 0 { self.duration = dur }
             if cur > 0 { self.isLoading = false }  // audio has actually started
+            self.recordHistoryIfQualified(at: cur)
         }
         self.engine.onEnded = { [weak self] in
             guard let self else { return }
@@ -63,6 +71,9 @@ final class PlayerController: ObservableObject {
     /// The videoId currently loaded into the engine, or nil if the selected
     /// track has only been cued (shown in the UI) but never started playing.
     private var loadedTrackId: String?
+    /// Whether the active queue is the Favorites list. Only then does liked-list
+    /// reconciliation prune the queue (so playing from Recent/New isn't disturbed).
+    private var queueIsFavorites = false
 
     private var hasNext: Bool {
         guard let i = currentIndex else { return false }
@@ -72,9 +83,11 @@ final class PlayerController: ObservableObject {
     // MARK: - Commands
 
     /// Plays `track`, using `context` as the surrounding queue (so next/prev work).
-    func play(_ track: Track, in context: [Track]) {
+    /// `favorites` marks the queue as the liked list so reconciliation may prune it.
+    func play(_ track: Track, in context: [Track], favorites: Bool = false) {
         queue = context
         currentIndex = context.firstIndex(of: track) ?? 0
+        queueIsFavorites = favorites
         startCurrent()
     }
 
@@ -94,18 +107,25 @@ final class PlayerController: ObservableObject {
     /// Keeps playback in sync with the current liked-songs list — called whenever
     /// the library changes (launch, refresh, unlike, pagination). Tracks no longer
     /// liked are dropped from the queue; if the *current* track was removed it
-    /// advances to the next surviving track (or stops). While idle it also
-    /// pre-selects the first track (shown paused, engine not booted).
+    /// advances to the next surviving track (or stops). While idle it mirrors the
+    /// library into the queue but cues *nothing* — the bar shows its empty state
+    /// until the user picks a track.
     func reconcile(with tracks: [Track]) {
         let liveIds = Set(tracks.map(\.id))
 
-        // Idle (cued on launch, nothing started): mirror the library exactly.
+        // Idle (nothing started): mirror the library as the queue context, but
+        // leave the selection empty so launch shows no base track.
         if loadedTrackId == nil, !isPlaying {
             queue = tracks
-            currentIndex = tracks.isEmpty ? nil : 0
+            currentIndex = nil
+            queueIsFavorites = true
             pushNowPlaying()
             return
         }
+
+        // Only prune when actually playing the Favorites queue — never disturb a
+        // queue built from Recent/New.
+        guard queueIsFavorites else { return }
 
         guard let current = currentTrack else {
             queue = tracks
@@ -190,9 +210,20 @@ final class PlayerController: ObservableObject {
         errorMessage = nil
         isLoading = true
         loadedTrackId = track.id
+        recordedHistoryId = nil   // new play — eligible to record once it qualifies
         engine.load(videoId: track.id)
         isPlaying = true
         pushNowPlaying()
+    }
+
+    /// Writes the current track to history once it has actually played past the
+    /// qualify threshold (so seeks/skips don't pollute "Recent").
+    private func recordHistoryIfQualified(at time: Double) {
+        guard time >= PlayHistoryStore.qualifyThreshold,
+              let track = currentTrack,
+              recordedHistoryId != track.id else { return }
+        recordedHistoryId = track.id
+        history.record(track)
     }
 
     private func pushNowPlaying() {
