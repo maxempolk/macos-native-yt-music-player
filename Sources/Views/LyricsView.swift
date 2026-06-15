@@ -5,6 +5,8 @@ struct LyricsView: View {
     @EnvironmentObject var lyrics: LyricsModel
     @State private var scrollObserver = ScrollObserver()
 
+    private let cardShape = RoundedRectangle(cornerRadius: 24, style: .continuous)
+
     var body: some View {
         Group {
             switch lyrics.state {
@@ -20,6 +22,11 @@ struct LyricsView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background { Color.clear.glassEffect(.regular, in: cardShape) }
+        // Clip the scrolling text to the glass card so it can't spill past the
+        // rounded top/edges.
+        .clipShape(cardShape)
+        .padding(8)
     }
 
     private var currentIndex: Int? {
@@ -36,7 +43,7 @@ struct LyricsView: View {
                             .font(.title3)
                             .fontWeight(isCurrent ? .bold : .regular)
                             .foregroundStyle(lineColor(isCurrent: isCurrent))
-                            .scaleEffect(isCurrent ? 1.04 : 1, anchor: .leading)
+                            .fixedSize(horizontal: false, vertical: true)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .id(line.id)
                             .contentShape(Rectangle())
@@ -49,7 +56,8 @@ struct LyricsView: View {
                 .padding(.horizontal, 24)
                 .padding(.bottom, 28)
             }
-            .contentMargins(.top, 0, for: .scrollContent)
+            .contentMargins(.top, 16, for: .scrollContent)
+            .scrollEdgeEffectStyle(.soft, for: .top)
             .customScrollbar(scrollObserver)
             .onChange(of: currentIndex) { _, idx in
                 guard let idx else { return }

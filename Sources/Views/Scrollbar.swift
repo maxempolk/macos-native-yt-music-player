@@ -40,7 +40,8 @@ struct VerticalScrollbar: View {
                 let y = (min(max(0, metrics.offset), scrollable) / scrollable) * (track - thumb)
 
                 Capsule()
-                    .fill(Color.primary.opacity(0.3))
+                    .fill(.clear)
+                    .glassEffect(.regular.tint(.primary.opacity(0.22)), in: .capsule)
                     .frame(width: width, height: thumb)
                     .offset(y: y)
                     .frame(maxWidth: .infinity, alignment: .trailing)

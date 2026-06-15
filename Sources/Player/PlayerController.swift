@@ -78,6 +78,19 @@ final class PlayerController: ObservableObject {
         startCurrent()
     }
 
+    /// Plays the whole list from the top.
+    func playAll(_ tracks: [Track]) {
+        guard let first = tracks.first else { return }
+        play(first, in: tracks)
+    }
+
+    /// Plays the list shuffled.
+    func playShuffled(_ tracks: [Track]) {
+        let shuffled = tracks.shuffled()
+        guard let first = shuffled.first else { return }
+        play(first, in: shuffled)
+    }
+
     /// Keeps playback in sync with the current liked-songs list — called whenever
     /// the library changes (launch, refresh, unlike, pagination). Tracks no longer
     /// liked are dropped from the queue; if the *current* track was removed it

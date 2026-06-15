@@ -19,6 +19,10 @@ struct ContentView: View {
                 signedOutView
             }
         }
+        .background {
+            AmbientArtwork(url: player.currentTrack?.thumbnailURL)
+                .animation(.easeInOut(duration: 0.6), value: player.currentTrack?.id)
+        }
         .background(VisualEffectBackground().ignoresSafeArea())
         .background(WindowConfigurator())
         .background(HideSystemScrollers())

@@ -1,6 +1,25 @@
 import SwiftUI
 import AppKit
 
+/// A faint, heavily-blurred wash of the current artwork — ambient color for the
+/// window without a heavy tint. Crossfades when the track changes.
+struct AmbientArtwork: View {
+    let url: URL?
+
+    var body: some View {
+        CachedImage(url: url) { image in
+            image.resizable().aspectRatio(contentMode: .fill)
+        } placeholder: {
+            Color.clear
+        }
+        .blur(radius: 90)
+        .opacity(0.10)
+        .ignoresSafeArea()
+        .id(url)
+        .transition(.opacity)
+    }
+}
+
 /// A behind-window blur, so the desktop/other apps show through faintly.
 struct VisualEffectBackground: NSViewRepresentable {
     var material: NSVisualEffectView.Material = .underWindowBackground

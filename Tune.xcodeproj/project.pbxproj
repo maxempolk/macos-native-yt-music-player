@@ -10,6 +10,7 @@
 		17DA7690F1330A4E1CE8454F /* LyricsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 342C2DE911BD0EF9E07CB347 /* LyricsModel.swift */; };
 		2596060E0281FBA6F025257B /* ContinuationParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C4F62DEEDA74FE2E806FCFC /* ContinuationParser.swift */; };
 		36C13BFFC6222274EDD81466 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1AEF64F226E0C9FF0543EA /* ContentView.swift */; };
+		3D8C4E05416B68D71E85C6EC /* EqualizerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E482FB2ECCE9910F1172EDF /* EqualizerView.swift */; };
 		4DAECB163705C10719B12398 /* ImageColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9D703DE205F46DAFD55E5E1 /* ImageColor.swift */; };
 		59FF4D67413117DBD30B151B /* Lyrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66B3EB7E5CEE583B4C187FC1 /* Lyrics.swift */; };
 		609D1A1930E65D7E770C8CA7 /* SAPISIDHash.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55C70538F6C3DA8AFE391933 /* SAPISIDHash.swift */; };
@@ -20,6 +21,7 @@
 		8E3EB16BA80CB3A00FA5C773 /* Track.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8162BE41BB726527B1CDFF79 /* Track.swift */; };
 		915496463DE4BF1ECD99E890 /* SessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D154B9C7FBBC40DB89A1800C /* SessionStore.swift */; };
 		A185EF8A3EE57D584678A3B8 /* LibraryModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82D2DE065C59831A0BDAE232 /* LibraryModel.swift */; };
+		A8469A39A18614BFFBAF4284 /* Marquee.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFFFBFCFD6133734B81AA06B /* Marquee.swift */; };
 		A97986A227B77737863D90DD /* NowPlayingCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE0876B5143053C90ECE7ED4 /* NowPlayingCenter.swift */; };
 		AA3B8ED0519C7F2778B43450 /* LyricsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4ED6F7AD50B231E596F8201 /* LyricsView.swift */; };
 		AF607764A05BDCBD91E1CC2A /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C4AE9882E30AE3811C39891 /* Keychain.swift */; };
@@ -57,12 +59,14 @@
 		82D2DE065C59831A0BDAE232 /* LibraryModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryModel.swift; sourceTree = "<group>"; };
 		87FF9A4949A7529C889BF70A /* Tune.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tune.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9C4F62DEEDA74FE2E806FCFC /* ContinuationParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContinuationParser.swift; sourceTree = "<group>"; };
+		9E482FB2ECCE9910F1172EDF /* EqualizerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EqualizerView.swift; sourceTree = "<group>"; };
 		A4ED6F7AD50B231E596F8201 /* LyricsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsView.swift; sourceTree = "<group>"; };
 		A9D703DE205F46DAFD55E5E1 /* ImageColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageColor.swift; sourceTree = "<group>"; };
 		C4283D76D75249E24DE40FB8 /* LikedCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LikedCache.swift; sourceTree = "<group>"; };
 		D154B9C7FBBC40DB89A1800C /* SessionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStore.swift; sourceTree = "<group>"; };
 		D7FDFF37CA147A8FCDF4C62B /* InnerTubeClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InnerTubeClient.swift; sourceTree = "<group>"; };
 		FE0876B5143053C90ECE7ED4 /* NowPlayingCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingCenter.swift; sourceTree = "<group>"; };
+		FFFFBFCFD6133734B81AA06B /* Marquee.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Marquee.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -79,9 +83,11 @@
 			children = (
 				76E4F489D6BCADBA74305E8F /* CachedImage.swift */,
 				1F1AEF64F226E0C9FF0543EA /* ContentView.swift */,
+				9E482FB2ECCE9910F1172EDF /* EqualizerView.swift */,
 				A9D703DE205F46DAFD55E5E1 /* ImageColor.swift */,
 				51ECE243004079AEC83D6DEF /* LikedSongsView.swift */,
 				A4ED6F7AD50B231E596F8201 /* LyricsView.swift */,
+				FFFFBFCFD6133734B81AA06B /* Marquee.swift */,
 				43A52AC80A09D25C6C51DE38 /* NowPlayingBar.swift */,
 				69722D389B5693C59CF01035 /* Scrollbar.swift */,
 				015DBA0C21BC27FD92E74DA5 /* VisualEffects.swift */,
@@ -242,6 +248,7 @@
 				BE857811CD180C0DD930A7F2 /* CachedImage.swift in Sources */,
 				36C13BFFC6222274EDD81466 /* ContentView.swift in Sources */,
 				2596060E0281FBA6F025257B /* ContinuationParser.swift in Sources */,
+				3D8C4E05416B68D71E85C6EC /* EqualizerView.swift in Sources */,
 				4DAECB163705C10719B12398 /* ImageColor.swift in Sources */,
 				B4467369A445FC72D989CC5A /* InnerTubeClient.swift in Sources */,
 				8880D812A12590C2BC63542B /* JSONDig.swift in Sources */,
@@ -253,6 +260,7 @@
 				59FF4D67413117DBD30B151B /* Lyrics.swift in Sources */,
 				17DA7690F1330A4E1CE8454F /* LyricsModel.swift in Sources */,
 				AA3B8ED0519C7F2778B43450 /* LyricsView.swift in Sources */,
+				A8469A39A18614BFFBAF4284 /* Marquee.swift in Sources */,
 				BAD0691C711B45CB0EDB8AC4 /* NowPlayingBar.swift in Sources */,
 				A97986A227B77737863D90DD /* NowPlayingCenter.swift in Sources */,
 				FC88CB494129C60391FD4E69 /* PlayerController.swift in Sources */,
