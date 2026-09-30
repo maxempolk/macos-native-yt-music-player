@@ -1,29 +1,39 @@
 # Tune
 
-A native **SwiftUI macOS** client for YouTube Music — browse your liked songs and
-play them from a clean, native interface.
+A native SwiftUI macOS client for browsing and playing YouTube Music in a desktop interface.
 
 > **Version 0.1.0** · macOS 26+ · Swift 5
 
-## ⚠️ Disclaimer — read before using
+[Source](https://github.com/maxempolk/macos-native-yt-music-player) · [Build locally](#build)
 
-- **Educational / personal use only.** This project is a learning exercise and a
-  tool for personal use. It is **not** intended for distribution or commercial use.
-- **Not affiliated with Google, YouTube, or YouTube Music** in any way. All
-  trademarks belong to their respective owners.
-- **Uses unofficial APIs.** Tune talks to YouTube's private *InnerTube* endpoints
-  and authenticates with your own browser cookies. This is **not** a supported or
-  sanctioned interface and very likely violates the
-  [YouTube Terms of Service](https://www.youtube.com/t/terms). Use it at your own
-  risk — your Google account is your responsibility.
-- **No warranty.** The software is provided "as is", without warranty of any kind.
-  The author is not liable for any consequences of using it, including account
-  restrictions.
-- **Do not ship as-is.** The app uses broad entitlements
-  (`Resources/Tune.entitlements`) for network and cookie access and is meant for
-  local builds only — not for the App Store or redistribution.
+## About
 
-## Privacy & data
+Tune is a personal learning project that explores a native macOS interface for YouTube Music. It loads a signed-in user's library and plays music through an embedded WebView.
+
+## Highlights
+
+- SwiftUI interface for the home feed, liked songs, playback controls and lyrics.
+- Separate InnerTube client for library data and `WKWebView` playback using the signed-in session.
+- Session storage in macOS Keychain and local caches for liked songs and artwork.
+
+## Tech Stack
+
+- **App:** Swift 5, SwiftUI, macOS 26+
+- **Playback and login:** WebKit (`WKWebView`)
+- **Project generation:** XcodeGen
+
+## Live Demo
+
+There is no hosted demo or distributed app build. [Build and run it locally](#build) in Xcode on macOS 26+.
+
+## Important use and privacy notes
+
+- **Personal, educational use only.** This project is not affiliated with Google, YouTube or YouTube Music and is not intended for commercial distribution.
+- **Unofficial integration.** Tune uses private InnerTube endpoints and your browser session cookies. This interface is unsupported and may conflict with the [YouTube Terms of Service](https://www.youtube.com/t/terms); using it may put your account at risk.
+- **Local builds only.** The app is not prepared for App Store submission or redistribution. Review `Resources/Tune.entitlements` and its network and cookie access before changing that scope.
+- **No warranty.** The code is provided as-is; the author accepts no liability for use or account restrictions.
+
+## Privacy and data
 
 Tune does **not** collect or transmit your data to any third party other than
 Google's own YouTube Music servers (which it must contact to function).
