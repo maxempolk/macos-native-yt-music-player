@@ -10,6 +10,14 @@ A native SwiftUI macOS client for browsing and playing YouTube Music in a deskto
 
 Tune is a personal learning project that explores a native macOS interface for YouTube Music. It loads a signed-in user's library and plays music through an embedded WebView.
 
+## Screenshots
+
+Captured from the locally compiled macOS app: the home feed and liked-songs library.
+
+| Home feed | Liked songs |
+| --- | --- |
+| <img src="docs/screenshots/home.png" alt="Tune native home feed" width="300"> | <img src="docs/screenshots/library.png" alt="Tune liked-songs library" width="300"> |
+
 ## Highlights
 
 - SwiftUI interface for the home feed, liked songs, playback controls and lyrics.
